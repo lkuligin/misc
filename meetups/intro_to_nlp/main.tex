@@ -1,0 +1,205 @@
+\documentclass{beamer}
+\usetheme{Darmstadt}
+\usepackage{listings}
+
+\title{Natural Language Processing}
+\subtitle{A very short introduction}
+\author{Leonid Kuligin\inst{1}}
+\institute % (optional, but mostly needed)
+{
+  \inst{1}%
+  Scout24
+}
+
+\date{Munich Kaggle meetup, 2017}
+
+% Let's get started
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Classical NLP problems}
+  \begin{itemize}
+  \item {
+    Information Retrieval - predict similarities between text query and text document
+  }
+  \item {
+    Machine translation
+  }
+  \item {
+    Sentiment analysis
+  }
+  \item {
+    Chatbots / support automation / ...
+  }
+    \item {
+    * Speech recognition
+  }
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Basic simplified pipeline}
+  \begin{itemize}
+  \item {
+    Split to tokens + group by tokens (merge similar)
+  }
+  \item {   
+    Encode document (collection of tokens) as a vector
+  }
+  \item {
+    Extract features = measures of similarity
+  }
+  \item {
+    Train your model
+  }
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{}
+\begin{block}{}
+You can and probably should use pretrained embeddings or additional linguistic libraries! \\~\\
+But still understanding the basics is important since you might have a specific vocabulary in the problem you are solving
+\end{block}
+\end{frame}
+
+\begin{frame}{}
+\begin{block}{Kind warning}
+And this is not how the real NLP applications (like machine translations) work. E.g., we are not going to speak about context-free grammars at all.
+\end{block}
+\end{frame}
+
+\begin{frame}{Split to tokens}
+  \begin{itemize}
+  \item
+    token definition = usually word or symbol
+    \begin{itemize}
+    \item
+      Unigramms, bigramms, trigramms
+    \end{itemize}
+  \item
+    be careful with unicode!
+  \item
+    define symbols to split on, symbol to trim on
+  \item
+    decide whether to use stopwords or not (be careful with defaults!)
+  \item
+    decide whether to use a stemmer/lemmatizing or not
+    \begin{itemize}
+    \item
+      at least, bring everything to low case
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Bag-of-words}
+    \begin{itemize}
+        \item each document = sparse token of length \[||V||\]
+        \item position of the element = index of a token, value = number of occurrences of this token in this document
+        \item we can train Naive Bayes classifier or linear classified based on bag-of-words representation
+    \end{itemize}
+  
+\end{frame}
+
+\begin{frame}{Term frequency}
+  \begin{itemize}
+    \item
+      How often a particular term is mentioned in a particular document for token \textit{t} and document \textit{d}
+      \[tf_{t,d} = \frac{f_{t,d}}{\sum_{t'\in d}{f_{t',d}}} \]
+    \item
+      various smoothing (e.g.,log) or normalization might be applied
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Inverse term frequency}
+  \begin{itemize}
+      \item
+      tokens that are less relevant across ALL documents (\textit{corpus D}) are more valuable!
+      \[idf_{t,d} = \frac{|D|}{|{d \in D: t \in d}|} \]
+    \item
+      again, various smoothing is possible
+    \item
+      should we make vocabulary before train-test split or not? 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Tf-idf}
+    \begin{itemize}
+      \item 
+        term frequency - inverse document frequency
+        \[ tfidf_{t,d} = tf_{t,d} * idf_{t,d} \]
+      \item
+        document can be represented as a \textit{sparse} vector of tfidf value for each term in the vocabulary
+      \item
+        different smoothing schemas can be used (you can even fully eliminate the idf component)
+      \item
+        1,2,...-grams can be element of the same vocabulary, or we can make several vocabularies
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Similarities between documents}
+    \begin{itemize}
+      \item 
+        Jaccard distance (between two sets)
+        \[jac(A,B) = \frac{A \cap B}{A \cup B}\]
+      \item
+        Cosine distance = normalized dot product (the angle between two vectors)
+        \[ cos(A,B) = cos(\theta) = \frac{A \dot B}{||A|| * ||B||} \]
+      \item
+        ...
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Possible feature engineering}
+    \begin{itemize}
+      \item 
+        content features
+        \begin{itemize}
+            \item length: tokens in a document, average token's length, document's length
+            \item share/amount of special characters (uppercase, digits, unicode, question marks, ...)
+            \item ...
+            \item if your model is trained on \textb{pairs} of documents, make sure that
+            \[f(d_1, d_2) = f(d_2, d_1)\]
+        \end{itemize}
+      \item
+        Linear models trained on bag-of-words
+      \item
+        distances calculated on different vectorizers
+      \item
+        SVD
+      \item
+        difference or intersection of documents pair might be also useful
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{block}{}
+Let's put it all together!
+\end{block}
+\end{frame}
+
+\begin{frame}[allowframebreaks]
+  \frametitle<presentation>{Useful APIs}
+    
+  \begin{thebibliography}{10}
+    
+  \beamertemplatebookbibitems
+  % Start with overview books.
+
+  \bibitem{1}
+    Sklearn.feature\_extraction.text
+    \newblock {\em http://scikit-learn.org}
+  \bibitem{2}
+    Nltk 
+    \newblock {\em http://nltk.org}
+  \bibitem{3}
+    Spacy - \textit{thx Jean-Marc for mentioning!}
+    \newblock {\em http://spacy.io}
+  \bibitem{4}
+    Stanford NLP Group word embeddings 
+    \newblock {\em https://nlp.stanford.edu/projects/glove/}
+  \end{thebibliography}
+\end{frame}
+
+\end{document}
